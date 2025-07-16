@@ -40,26 +40,26 @@ const prompt = ai.definePrompt({
   name: 'datesheetAnalyzerPrompt',
   input: {schema: TestAnalyzerInputSchema},
   output: {schema: TestAnalyzerOutputSchema},
-  prompt: `You are an expert AI assistant tasked with accurately extracting structured data from images of a test datesheet. Your goal is to identify all tests, their dates, and their complete syllabus. Today's date is ${new Date().toDateString()}.
+  prompt: `You are an AI assistant specializing in accurately extracting structured data from test datesheets.
 
-**CRITICAL INSTRUCTIONS:**
+**Instructions:**
 
-1.  **Group Subjects into a Single Test Event:** Many datesheets list multiple subjects for the same overall test (e.g., "Unit Test 1", "Term End Exam"). You MUST identify these as a single test.
-    *   **Correct Behavior:** If you see "Unit Test 1" with subjects "Physics", "Chemistry", and "Maths" listed, create ONE entry with \`testName: "Unit Test 1"\`.
-    *   **Incorrect Behavior:** Do NOT create separate entries like "Unit Test 1 - Physics".
+1.  **Group Subjects into a Single Test Event:** Many datesheets list multiple subjects for the same test event (e.g., "Unit Test 1", "Term End Exam"). You MUST identify these as a single test.
+    *   **Correct Behavior:** If you see "Unit Test 1" with subjects "Physics", "Chemistry", and "Maths" on different dates, create ONE entry with \`testName: "Unit Test 1"\`.
+    *   **Incorrect Behavior:** Do NOT create separate entries for "Unit Test 1 - Physics", "Unit Test 1 - Chemistry", etc.
 
-2.  **Extract and Combine All Syllabus Topics:** For a single test event, you MUST combine all associated subjects and their specific syllabus topics into a single \`syllabus\` string.
-    *   **Look for a "Syllabus" column or section.** Many datesheets list specific chapters or topics.
-    *   **Example:** If the datesheet shows:
+2.  **Combine All Syllabus Topics:** For a single test event, you MUST combine all associated subjects/topics into a single \`syllabus\` string.
+    *   **Example:** If "Unit Test 1" has:
         *   Physics: Chapters 1-3
         *   Chemistry: Organic Compounds
-        *   MAT: Number Series
-        The syllabus field for that single test entry should be "Physics: Chapters 1-3, Chemistry: Organic Compounds, MAT: Number Series".
-    *   **If no specific topics are listed, use the subject name as the syllabus.** For example, if it just says "English", the syllabus contribution is just "English".
+    *   The syllabus field for the "Unit Test 1" entry should be "Physics: Chapters 1-3, Chemistry: Organic Compounds".
 
-3.  **Accurate Date Extraction:** Extract the start and end dates for each test event and format them as YYYY-MM-DD. If a test is on a single day, the start and end dates will be the same. The start date is the earliest date for any subject in the test group, and the end date is the latest.
+3.  **Determine Date Range:**
+    *   The \`startDate\` should be the earliest date among all subjects in the test event.
+    *   The \`endDate\` should be the latest date among all subjects in the test event.
+    *   Format all dates as **YYYY-MM-DD**. Infer the year from the current date: ${new Date().toDateString()}.
 
-**Analyze the following datesheet images and extract the data according to these rules:**
+**Analyze the following datesheet images and extract the data based on these rules.**
 
 Datesheet Images:
 {{#each datesheetPhotoDataUris}}
